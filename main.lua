@@ -13,16 +13,20 @@ WINDOW_HEIGHT = 452
 VIRTUAL_WIDTH = 512
 VIRTUAL_HEIGHT = 288
 
--- Imagens de fundo e chão, respectivamente
+-- Imagem de fundo
 local background = love.graphics.newImage('sprites/background.png')
+-- Variavel da posição horizontal do bg
 local bgScroll = 0 
-
+-- Imagem do chão
 local ground = love.graphics.newImage('sprites/ground.png')
+-- Posição da imagem do chão
 local groundScroll = 0
 
+-- Velocidade dos bg's
 local BACKGROUND_SCROLL_SPEED = 30 
 local GROUND_SCROLL_SPEED = 60
 
+-- Ponto em que o bg reseta
 local BACKGROUND_LOOPING_POINT = 413
 
 local bird = Bird()
@@ -40,6 +44,8 @@ function love.load()
         fullscreen = false,
         resizable = true
     })
+
+    love.keyboard.keysPressed = {}
 end
 
 -- Redimensiona a janela virtual junto com a janela real
@@ -49,16 +55,33 @@ end
 
 -- Verifica se alguma tecla foi pressionada
 function love.keypressed(key)
+    love.keyboard.keysPressed[key] = true
+
     -- Fecha o jogo ao apertar esc
     if key == 'escape' then
         love.event.quit()
     end
 end
 
-function love.update(dt)
-    bgScroll = (bgScroll + BACKGROUND_SCROLL_SPEED * dt) % BACKGROUND_LOOPING_POINT
+function love.keyboard.wasPressed(key)
+    if love.keyboard.keysPressed[key] then
+        return true
+    else
+        return false
+    end
+end
 
+function love.update(dt)
+    -- Posição do BG reseta sempre que passa do valor BACKGROUND_LOOP_POINT
+    bgScroll = (bgScroll + BACKGROUND_SCROLL_SPEED * dt) % BACKGROUND_LOOPING_POINT
+    
+    -- Posição do BG reseta sempre que passa do valor virtual width
     groundScroll = (groundScroll + GROUND_SCROLL_SPEED * dt) % VIRTUAL_WIDTH
+
+    -- Atualiza o passarinho
+    bird:update(dt)
+
+    love.keyboard.keysPressed = {}
 end
 
 -- Desenha na janela
@@ -69,6 +92,7 @@ function love.draw()
     love.graphics.draw(background, -bgScroll, 0)
     love.graphics.draw(ground, -groundScroll, VIRTUAL_HEIGHT-16)
 
+    -- Renderiza o passarinho
     bird:render()
 
     -- Finaliza o ciclo
