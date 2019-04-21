@@ -18,6 +18,8 @@ function PipePair:init(y)
 
     -- Inicia a variavel que verifica se pode ser removido
     self.remove = false
+
+    self.scored = false
 end
 
 function PipePair:update(dt)

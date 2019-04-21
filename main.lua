@@ -7,6 +7,8 @@ require('objects/StateMachine')
 require('objects/states/BaseState')
 require('objects/states/PlayState')
 require('objects/states/TitleScreenState')
+require('objects/states/ScoreState')
+require('objects/states/CountdownState')
 
 -- Importa a classe Bird
 require('objects/Bird')
@@ -64,7 +66,9 @@ function love.load()
 
     gStateMachine = StateMachine {
         ['title'] = function() return TitleScreenState() end,
-        ['play'] = function() return PlayState() end
+        ['countdown'] = function() return CountdownState() end,
+        ['play'] = function() return PlayState() end,
+        ['score'] = function() return ScoreState() end
     }
 
     gStateMachine:change('title')

@@ -12,6 +12,8 @@ function PlayState:init()
     self.pipePairs = {}
     self.timer = 0
 
+    self.score = 0
+
     -- Inicia o ultimo y gravado, para um vão aleatorio
     self.lastY = -PIPE_HEIGHT + math.random(90) + 20
 end
@@ -36,25 +38,15 @@ function PlayState:update(dt)
         self.timer = 0
     end
     
-    
-    -- Atualiza o passarinho
-    self.bird:update(dt)
-    
     for k, pair in pairs(self.pipePairs) do
         -- Atualiza os canos
-        pair:update(dt)
-        for l, pipe in pairs(pair.pipes) do
-            -- Para o scroll de o passaro colidir com algum dos canos
-            if self.bird:collides(pipe) then
-                gStateMachine:change('title')
+        if not pair.scored then
+            if pair.x + PIPE_WIDTH < self.bird.x then
+                self.score = self.score + 1
+                pair.scored = true
             end
         end
-    
-        -- Se o x do par passar do tamanho negativo do cano então ele saiu da tela
-        -- e pode ser removido
-        if pair.x < -PIPE_WIDTH then
-            pair.remove = true
-        end
+        pair:update(dt)
     end
     
     for k, pair in pairs(self.pipePairs) do
@@ -64,8 +56,20 @@ function PlayState:update(dt)
         end
     end
 
+    
+    -- Atualiza o passarinho
+    self.bird:update(dt)
+    
+    for k, pair in pairs(self.pipePairs) do
+        for l, pipe in pairs(pair.pipes) do
+            if self.bird:collides(pipe) then
+                gStateMachine:change('score', {score = self.score})
+            end
+        end
+    end
+
     if self.bird.y > VIRTUAL_HEIGHT - 15 then
-        gStateMachine:change('title')
+        gStateMachine:change('score', {score=self.score})
     end
 end
 
@@ -73,6 +77,9 @@ function PlayState:render()
     for k, pair in pairs(self.pipePairs) do
         pair:render()
     end
+
+    love.graphics.setFont(flappyFont)
+    love.graphics.print('Score: ' .. tostring(self.score), 8, 8)
 
     self.bird:render()
 end
