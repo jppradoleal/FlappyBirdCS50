@@ -106,6 +106,12 @@ function love.keypressed(key)
     end
 end
 
+function love.mousepressed(x, y, button)
+    if button == 1 then
+        love.keyboard.keysPressed['space'] = true
+    end
+end
+
 -- A função keypressed não pode ser chamada duas vezes pois é sobreescrita
 -- Entao é criado a função abaixo que recebe uma key e verifica se ela foi pressionada
 -- Durante o frame
