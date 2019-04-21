@@ -11,9 +11,9 @@ function CountdownState:update(dt)
     self.timer = self.timer + dt
     
     if self.timer > COUNTDOWN_TIME then
+        sounds['clicked']:play()
         self.timer = self.timer % COUNTDOWN_TIME
         self.count = self.count - 1
-
         if self.count == 0 then
             gStateMachine:change('play')
         end

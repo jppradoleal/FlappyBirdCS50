@@ -57,6 +57,20 @@ function love.load()
     hugeFont = love.graphics.newFont('fonts/flappy.ttf', 56)
     love.graphics.setFont(flappyFont)
 
+    sounds = {
+        ['jump'] = love.audio.newSource('audio/jump.wav', 'static'),
+        ['explosion'] = love.audio.newSource('audio/explosion.wav', 'static'),
+        ['hurt'] = love.audio.newSource('audio/hurt.wav', 'static'),
+        ['score'] = love.audio.newSource('audio/score.wav', 'static'),
+        ['clicked'] = love.audio.newSource('audio/click.wav', 'static'),
+
+        ['music'] = love.audio.newSource('audio/marios_way.mp3', 'static')
+    }
+
+    sounds['music']:setLooping(true)
+    sounds['music']: setVolume(0.1)
+    sounds['music']:play()
+
     -- Cria a janela
     push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
         vsync = true,
