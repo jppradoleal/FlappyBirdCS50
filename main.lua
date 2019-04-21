@@ -57,6 +57,14 @@ function love.load()
     hugeFont = love.graphics.newFont('fonts/flappy.ttf', 56)
     love.graphics.setFont(flappyFont)
 
+    badges = {
+        ['first'] = love.graphics.newImage('sprites/badges/badge01.png'),
+        ['second'] = love.graphics.newImage('sprites/badges/badge02.png'),
+        ['third'] = love.graphics.newImage('sprites/badges/badge03.png'),
+        ['forth'] = love.graphics.newImage('sprites/badges/badge04.png'),
+        ['fifth'] = love.graphics.newImage('sprites/badges/badge05.png')
+    }
+
     sounds = {
         ['jump'] = love.audio.newSource('audio/jump.wav', 'static'),
         ['explosion'] = love.audio.newSource('audio/explosion.wav', 'static'),

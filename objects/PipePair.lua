@@ -1,7 +1,7 @@
 PipePair = Class{}
 
 -- Variavel que armazena o tamanho do espaço entre os canos
-local GAP_HEIGHT = 90
+local GAP_HEIGHT = 60
 
 function PipePair:init(y)
     -- Variavel que armazena a posição x + algum valor, para que os canos nao renderizem dentro da tela
@@ -13,7 +13,7 @@ function PipePair:init(y)
     -- Instancia e armazena os dois canos nas posições
     self.pipes = {
         ['upper'] = Pipe('top', self.y),
-        ['lower'] = Pipe('bottom', self.y + PIPE_HEIGHT + GAP_HEIGHT)
+        ['lower'] = Pipe('bottom', self.y + PIPE_HEIGHT + GAP_HEIGHT + math.random(20,30))
     }
 
     -- Inicia a variavel que verifica se pode ser removido
