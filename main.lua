@@ -2,6 +2,12 @@
 push = require("libs/push")
 Class = require("libs/class")
 
+-- Importa os objetos de game state
+require('objects/StateMachine')
+require('objects/states/BaseState')
+require('objects/states/PlayState')
+require('objects/states/TitleScreenState')
+
 -- Importa a classe Bird
 require('objects/Bird')
 
@@ -35,20 +41,6 @@ local GROUND_SCROLL_SPEED = 60
 -- Ponto em que o bg reseta
 local BACKGROUND_LOOPING_POINT = 413
 
-local bird = Bird()
-
--- Variavel que armazena os canos instanciados
-local pipePairs = {}
-
--- Variavel que dita a frequencia de spawn dos canos
-local spawnTimer = 0
-
--- Variavel que armazena qual foi o y do ultimo cano instanciado
-local lastY = -PIPE_HEIGHT + math.random(80) + 20
-
--- Variavel que dita se o scroll deve funcionar ou não
-local scrolling = true
-
 -- Função chamada quando a janela esta carregando
 function love.load()
     -- Define o filtro nearest como padrão
@@ -56,12 +48,26 @@ function love.load()
 
     -- Seta o titulo da janela
     love.window.setTitle('Flappy Bird')
+
+    smallFont = love.graphics.newFont('fonts/font.ttf', 8)
+    mediumFont = love.graphics.newFont('fonts/flappy.ttf', 14)
+    flappyFont = love.graphics.newFont('fonts/flappy.ttf', 28)
+    hugeFont = love.graphics.newFont('fonts/flappy.ttf', 56)
+    love.graphics.setFont(flappyFont)
+
     -- Cria a janela
     push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
         vsync = true,
         fullscreen = false,
         resizable = true
     })
+
+    gStateMachine = StateMachine {
+        ['title'] = function() return TitleScreenState() end,
+        ['play'] = function() return PlayState() end
+    }
+
+    gStateMachine:change('title')
 
     -- Variavel que armazena os botoes que foram pressionados durante o frame
     love.keyboard.keysPressed = {}
@@ -94,64 +100,16 @@ function love.keyboard.wasPressed(key)
 end
 
 function love.update(dt)
-    -- Só roda quando scrolling = true
-    if scrolling then
-        -- Posição do BG reseta sempre que passa do valor BACKGROUND_LOOP_POINT
-        bgScroll = (bgScroll + BACKGROUND_SCROLL_SPEED * dt) % BACKGROUND_LOOPING_POINT
-        
-        -- Posição do BG reseta sempre que passa do valor virtual width
-        groundScroll = (groundScroll + GROUND_SCROLL_SPEED * dt) % VIRTUAL_WIDTH
-        
-        -- Timer aumenta conforme o tempo passa
-        spawnTimer = spawnTimer + dt
-        
-        -- Se o timer passou de 2 segundos
-        if spawnTimer > 5 then
+    -- Posição do BG reseta sempre que passa do valor BACKGROUND_LOOP_POINT
+    bgScroll = (bgScroll + BACKGROUND_SCROLL_SPEED * dt) % BACKGROUND_LOOPING_POINT
+    
+    -- Posição do BG reseta sempre que passa do valor virtual width
+    groundScroll = (groundScroll + GROUND_SCROLL_SPEED * dt) % VIRTUAL_WIDTH
+    
+    gStateMachine:update(dt)
 
-            -- y = altura do cano + 10, e o menor valor entre ultimo y e random, e altura da tela - 90 - altura do cano
-            local y = math.max(-PIPE_HEIGHT + 10,
-                                math.min( lastY + math.random(-20, 20), VIRTUAL_HEIGHT - 90 - PIPE_HEIGHT ))
-            -- Ultimo y recebe o y atual
-            lastY = y
-
-            -- Cano é instanciado na posição y
-            table.insert(pipePairs, PipePair(y))
-
-            -- Timer reseta
-            spawnTimer = 0
-        end
-        
-
-        -- Atualiza o passarinho
-        bird:update(dt)
-
-        for k, pair in pairs(pipePairs) do
-            -- Atualiza os canos
-            pair:update(dt)
-            for l, pipe in pairs(pair.pipes) do
-                -- Para o scroll de o passaro colidir com algum dos canos
-                if bird:collides(pipe) then
-                    scrolling = false
-                end
-            end
-
-            -- Se o x do par passar do tamanho negativo do cano então ele saiu da tela
-            -- e pode ser removido
-            if pair.x < -PIPE_WIDTH then
-                pair.remove = true
-            end
-        end
-
-        for k, pair in pairs(pipePairs) do
-            -- Remove se puder remover
-            if pair.remove then
-                table.remove(pipePairs, k)
-            end
-        end
-
-        -- Reseta a table de botoes pressionados no final do frame
-        love.keyboard.keysPressed = {}
-    end
+    -- Reseta a table de botoes pressionados no final do frame
+    love.keyboard.keysPressed = {}
 end
 
 -- Desenha na janela
@@ -161,17 +119,10 @@ function love.draw()
     -- Desenha o BG
     love.graphics.draw(background, -bgScroll, 0)
 
-    -- Renderiza os pares de canos
-    for k, pair in pairs(pipePairs) do
-        pair:render()
-    end
+    gStateMachine:render()
 
     -- Desenha o chão
     love.graphics.draw(ground, -groundScroll, VIRTUAL_HEIGHT-16)
-
-    -- Renderiza o passarinho
-    bird:render()
-
     -- Finaliza o ciclo
     push:finish()
 end
