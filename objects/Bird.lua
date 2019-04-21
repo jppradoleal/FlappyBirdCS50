@@ -29,6 +29,7 @@ function Bird:update(dt)
     -- Se espaço foi pressionado velocidade vai um pouco pra cima(pulo)
     if love.keyboard.wasPressed('space') then
         self.dy = -5
+        sounds['jump']:play()
     end
 
     -- posição vertical recebe velocidade vertical
